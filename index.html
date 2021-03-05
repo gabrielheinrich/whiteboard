@@ -84,12 +84,12 @@
       const onMouseUp = ({ clientX, clientY }) => {
         console.log("mouseup");
         if (!currentPath) return;
-        const d = currentPath.getAttribute("d");
-        if (lastPoints.length <= 1) {
-          const x = CENTERED ? clientX - width * 0.5 : clientX;
-          const y = CENTERED ? clientY - height * 0.5 : clientY;
-          currentPath.setAttribute("d", `M${x},${y} L${x},${y}`);
-        }
+        // const d = currentPath.getAttribute("d");
+        // if (lastPoints.length <= 1) {
+        //   const x = CENTERED ? clientX - width * 0.5 : clientX;
+        //   const y = CENTERED ? clientY - height * 0.5 : clientY;
+        //   currentPath.setAttribute("d", `M${x},${y} L${x},${y}`);
+        // }
         currentPath = null;
         lastPoints = [];
       };
