@@ -37,6 +37,7 @@
           undo();
         }
       });
+
       const setSize = (w, h) => {
         (width = w), (height = h);
         svg.setAttribute("width", width);
@@ -48,7 +49,8 @@
           } ${width} ${height}`
         );
       };
-      svg.addEventListener("mousedown", () => {
+
+      const onMouseDown = () => {
         console.log("mousedown");
         currentPath = document.createElementNS(
           "http://www.w3.org/2000/svg",
@@ -69,19 +71,33 @@
           // svg.removeChild(path);
         });
         svg.appendChild(currentPath);
+      };
+
+      svg.addEventListener("mousedown", onMouseDown);
+      svg.addEventListener("touchstart", (event) => {
+        onMouseDown();
       });
-      svg.addEventListener("mouseup", ({ clientX, clientY }) => {
+
+      const onMouseUp = ({ clientX, clientY }) => {
+        console.log("mouseup");
         if (!currentPath) return;
         const d = currentPath.getAttribute("d");
         if (lastPoints.length <= 1) {
           const x = CENTERED ? clientX - width * 0.5 : clientX;
           const y = CENTERED ? clientY - height * 0.5 : clientY;
-          currentPath.setAttribute("d", `M${x},${y} L${x}${y}`);
+          currentPath.setAttribute("d", `M${x},${y} L${x},${y}`);
         }
         currentPath = null;
         lastPoints = [];
+      };
+      svg.addEventListener("mouseup", onMouseUp);
+      svg.addEventListener("touchend", (event) => {
+        if (event.changedTouches.length == 0) return;
+        onMouseUp(event.changedTouches[0]);
       });
-      svg.addEventListener("mousemove", ({ clientX, clientY }) => {
+
+      const onMouseMove = ({ clientX, clientY }) => {
+        console.log("mousemove");
         if (!currentPath) return;
         let d = currentPath.getAttribute("d");
         let x = CENTERED ? clientX - width * 0.5 : clientX;
@@ -116,7 +132,13 @@
             : `M${x},${y}`
         );
         lastPoints.push({ x, y });
+      };
+      svg.addEventListener("mousemove", onMouseMove);
+      svg.addEventListener("touchmove", (event) => {
+        if (event.changedTouches.length == 0) return;
+        onMouseMove(event.changedTouches[0]);
       });
+
       const onResize = () => setSize(window.innerWidth, window.innerHeight);
       window.addEventListener("resize", onResize);
       window.addEventListener("load", onResize);
