@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <style>
+      body {
+        margin: 0;
+        cursor: crosshair;
+      }
+    </style>
+    <svg></svg>
+    <script>
+      // configs
+      const CENTERED = true;
+      const COLOR = "#000";
+      const THICKNESS = 4;
+      const VARIANCE = 1;
+
+      let width, height, currentPath, lastDraw;
+      const paths = [];
+      let lastPoints = [];
+
+      const svg = document.querySelector("svg");
+      const undo = () => {
+        if (paths.length == 0) return;
+        const path = paths.pop();
+        svg.removeChild(path);
+      };
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key == "z" && event.metaKey) {
+          undo();
+        }
+      });
+      const setSize = (w, h) => {
+        (width = w), (height = h);
+        svg.setAttribute("width", width);
+        svg.setAttribute("height", height);
+        svg.setAttribute(
+          "viewBox",
+          `${CENTERED ? width * -0.5 : 0} ${
+            CENTERED ? height * -0.5 : 0
+          } ${width} ${height}`
+        );
+      };
+      svg.addEventListener("mousedown", () => {
+        console.log("mousedown");
+        currentPath = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "path"
+        );
+        currentPath.setAttribute("stroke", COLOR);
+        currentPath.setAttribute("stroke-width", THICKNESS);
+        currentPath.setAttribute("fill", "none");
+        currentPath.setAttribute("stroke-linejoin", "round");
+        currentPath.setAttribute("stroke-linecap", "round");
+        paths.push(currentPath);
+        const path = currentPath;
+        path.addEventListener("mouseenter", () => {
+          console.log("mouseenter");
+          // const index = paths.findIndex((p) => p == path);
+          // if (!index) return;
+          // paths.splice(index, 1);
+          // svg.removeChild(path);
+        });
+        svg.appendChild(currentPath);
+      });
+      svg.addEventListener("mouseup", ({ clientX, clientY }) => {
+        if (!currentPath) return;
+        const d = currentPath.getAttribute("d");
+        if (lastPoints.length <= 1) {
+          const x = CENTERED ? clientX - width * 0.5 : clientX;
+          const y = CENTERED ? clientY - height * 0.5 : clientY;
+          currentPath.setAttribute("d", `M${x},${y} L${x}${y}`);
+        }
+        currentPath = null;
+        lastPoints = [];
+      });
+      svg.addEventListener("mousemove", ({ clientX, clientY }) => {
+        if (!currentPath) return;
+        let d = currentPath.getAttribute("d");
+        let x = CENTERED ? clientX - width * 0.5 : clientX;
+        let y = CENTERED ? clientY - height * 0.5 : clientY;
+
+        x += (Math.random() - 0.5) * VARIANCE;
+        y += (Math.random() - 0.5) * VARIANCE;
+
+        let controlPoint = null;
+        if (lastPoints.length >= 2) {
+          const p1 = lastPoints[lastPoints.length - 2];
+          const p2 = lastPoints[lastPoints.length - 1];
+          const length = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+          const distance = Math.sqrt((x - p2.x) ** 2 + (y - p2.y) ** 2);
+          if (distance < 5) return;
+          if (length >= 1) {
+            const scale = (distance / length) * 0.25;
+            controlPoint = {
+              x: p2.x + (p2.x - p1.x) * scale,
+              y: p2.y + (p2.y - p1.y) * scale,
+            };
+          }
+        }
+
+        currentPath.setAttribute(
+          "d",
+          d
+            ? d +
+                (controlPoint
+                  ? ` Q${controlPoint.x},${controlPoint.y},${x},${y}`
+                  : `L${x},${y}`)
+            : `M${x},${y}`
+        );
+        lastPoints.push({ x, y });
+      });
+      const onResize = () => setSize(window.innerWidth, window.innerHeight);
+      window.addEventListener("resize", onResize);
+      window.addEventListener("load", onResize);
+    </script>
+  </body>
+</html>
