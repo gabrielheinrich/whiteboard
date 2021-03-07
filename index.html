@@ -116,13 +116,13 @@
           const length = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
           const distance = Math.sqrt((x - p2.x) ** 2 + (y - p2.y) ** 2);
           if (distance < 3) return;
-          if (length >= 2) {
-            const scale = 1 / length; // 1 px
-            controlPoint = {
-              x: p2.x + (p2.x - p1.x) * scale,
-              y: p2.y + (p2.y - p1.y) * scale,
-            };
-          }
+          const targetLength = distance * 0.5;
+          if (targetLength < 1.5) targetLengt = 1.5;
+          const scale = targetLength / length;
+          controlPoint = {
+            x: p2.x + (p2.x - p1.x) * scale,
+            y: p2.y + (p2.y - p1.y) * scale,
+          };
         }
 
         currentPath.setAttribute(
