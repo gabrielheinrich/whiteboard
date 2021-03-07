@@ -115,13 +115,13 @@
           const p2 = lastPoints[lastPoints.length - 1];
           const length = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
           const distance = Math.sqrt((x - p2.x) ** 2 + (y - p2.y) ** 2);
-          if (distance < 20) return;
+          if (distance < 10) return;
           const targetLength = distance * 0.4;
           if (targetLength < 1) targetLength = 1;
           const scale = targetLength / length;
           controlPoint = {
-            x: p2.x + (p2.x - p1.x) * scale,
-            y: p2.y + (p2.y - p1.y) * scale,
+            x: p2.x + (p2.x - p1.x) * 0.5 + (x - p2.x) * 0.5,
+            y: p2.y + (p2.y - p1.y) * 0.5 + (y - p2.y) * 0.5,
           };
         }
 
